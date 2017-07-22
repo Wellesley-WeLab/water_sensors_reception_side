@@ -13,7 +13,7 @@ import config
 
 from models import *
 
-PACKET_LEN = 31
+PACKET_LEN = 29
 
 # create command line arguments parser
 parser = argparse.ArgumentParser(
@@ -35,34 +35,34 @@ def hexRepr (string) :
 
 def bytesToNumber (bts) :
     """
-    Converts a list of bytes to the integer they represent
+    Converts a list of bytes to the integer they represent.
+    The first bytes in the array should be the most significant
     """
 
     value = 0
     lenBts = len(bts)
     for i in range (0, lenBts) :
         value += bts[i] << ((lenBts-i-1)*8)
-    
     return value
 
 
 def getPacketComponents (packet) :
     """
-    Split the packet(31 bytes) into it's components, according to the format:\n
-    | packet no. (2 bytes) | reservoir id (2 bytes) | water level (4 bytes) | vcc (4 bytes) | tds (4 bytes) |
-    | conductivity (4 bytes) | salinity (4 bytes) | ignored parameter (4 bytes) | pH (4 bytes) |
+    Split the packet into it's components, according to the format:\n
+    | packet no. (4 bytes) | reservoir id (1 byte) | water level (4 bytes) | vcc (4 bytes) | tds (4 bytes) |
+    | conductivity (4 bytes) | salinity (4 bytes) |  pH (4 bytes) |
     """
 
     try :
         result = {
-            'packetNr': bytesToNumber(packet[0:2]),
-            'reservoir': bytesToNumber(packet[2:3]),
-            'waterLevel': bytesToNumber(packet[3:7]),
-            'vcc': bytesToNumber(packet[7:11]),
-            'conductivity': bytesToNumber(packet[11:15]),
-            'tds': bytesToNumber(packet[15:19]),
-            'salinity': bytesToNumber(packet[19:23]),
-            'pH': bytesToNumber(packet[27:31]),
+            'packetNr': bytesToNumber(packet[0:4]),
+            'reservoir': bytesToNumber(packet[4:5]),
+            'waterLevel': bytesToNumber(packet[5:9]),
+            'vcc': bytesToNumber(packet[9:13]),
+            'conductivity': bytesToNumber(packet[13:17]),
+            'tds': bytesToNumber(packet[17:21]),
+            'salinity': bytesToNumber(packet[21:25]),
+            'pH': bytesToNumber(packet[25:29]),
         }
     except Exception as e:
         print("[main#getPacketComponents] packet with invalid format received: {}".format(e))
@@ -81,7 +81,7 @@ if __name__ == '__main__' :
 
     print('App started...')
     
-    serialCon = serial.Serial(port=cmdArgs.port, baudrate=cmdArgs.baud_rate, xonxoff=True)
+    serialCon = serial.Serial(port=cmdArgs.port, baudrate=cmdArgs.baud_rate)
     print('Connected to {}'.format(serialCon))  
     
     # read the serial port continuously        
