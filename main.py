@@ -60,8 +60,8 @@ def getPacketComponents (packet) :
             'waterLevel': bytesToNumber(packet[5:9]),
             'vcc': bytesToNumber(packet[9:13]),
             'conductivity': bytesToNumber(packet[13:17]),
-            'tds': bytesToNumber(packet[17:21]),
-            'salinity': bytesToNumber(packet[21:25]),
+            'salinity': bytesToNumber(packet[17:21]),
+            'tds': bytesToNumber(packet[21:25]),
             'pH': bytesToNumber(packet[25:29]),
         }
     except Exception as e:
