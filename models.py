@@ -14,16 +14,17 @@ class Measurement () :
     def __init__ (self, **kwargs) :
         self.packetNr     = kwargs['packetNr']
         self.reservoir    = kwargs['reservoir']
-        self.waterLevel   = kwargs['waterLevel']
+        self.waterLevel   = (kwargs['waterLevel']*1024/kwargs['vcc'])/100
+        self.vcc          = kwargs['vcc']
         self.pH           = kwargs['pH']
-        self.conductivity = kwargs['conductivity']
-        self.salinity     = kwargs['salinity']
-        self.tds          = kwargs['tds']
+        self.conductivity = kwargs['conductivity']/1000
+        self.salinity     = kwargs['salinity']/1000
+        self.tds          = kwargs['tds']/1000
 
     def __str__ (self) :
-        return "#{} from {}; data (waterLevel={}, pH={}, conductivity={}, salinity={}, tds={})" \
-            .format(self.packetNr, self.reservoir, self.waterLevel, self.pH,
-                    self.conductivity, self.salinity, self.tds)
+        return "#{} from {}; data (waterLevel={}[vcc={}], pH={}, conductivity={}, salinity={}, tds={})" \
+            .format(self.packetNr, self.reservoir, self.waterLevel, self.vcc,
+                    self.pH, self.conductivity, self.salinity, self.tds)
     
     def save (self) :
         """

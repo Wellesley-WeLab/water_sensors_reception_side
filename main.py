@@ -95,4 +95,4 @@ if __name__ == '__main__' :
         else :
             measurement = Measurement(**resultData)
             print('{}'.format(measurement))
-            # measurement.save()
+            measurement.save()

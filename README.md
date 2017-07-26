@@ -11,7 +11,7 @@ The communication between the server and the CC1310 board is done over UART (ser
 
 ## Running
 
-The following command runs this component:
+To run it execute:
 
 ```
 python3 main.py --port <port that the device is attached to> --baud_rate <baud rate>
