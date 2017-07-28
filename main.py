@@ -20,9 +20,9 @@ parser = argparse.ArgumentParser(
     description='To read data from the receiving device, using serial communication.')
 # option to indicate the serial port
 parser.add_argument(
-    '--port', help="The serial port that the device is connected to (ex: /dev/ttyUSB0)")
+    '--port', help='The serial port that the device is connected to (ex: /dev/ttyUSB0)')
 # option to indicate the baud rate
-parser.add_argument('--baud_rate', help="The baud rate of the serial connection (ex: 9600)")
+parser.add_argument('--baud_rate', help='The baud rate of the serial connection (ex: 9600)')
 
 
 def hexRepr (string) :
@@ -49,7 +49,7 @@ def bytesToNumber (bts) :
 def getPacketComponents (packet) :
     """
     Split the packet into it's components, according to the format:\n
-    | packet no. (4 bytes) | reservoir id (1 byte) | water level (4 bytes) | vcc (4 bytes) | tds (4 bytes) |
+    | packet no. (4 bytes) | reservoir id (1 byte) | water gap (4 bytes) | vcc (4 bytes) | tds (4 bytes) |
     | conductivity (4 bytes) | salinity (4 bytes) |  pH (4 bytes) |
     """
 
@@ -57,7 +57,7 @@ def getPacketComponents (packet) :
         result = {
             'packetNr': bytesToNumber(packet[0:4]),
             'reservoir': bytesToNumber(packet[4:5]),
-            'waterLevel': bytesToNumber(packet[5:9]),
+            'waterGap': bytesToNumber(packet[5:9]),
             'vcc': bytesToNumber(packet[9:13]),
             'conductivity': bytesToNumber(packet[13:17]),
             'salinity': bytesToNumber(packet[17:21]),
@@ -67,7 +67,7 @@ def getPacketComponents (packet) :
     except Exception as e:
         print("[main#getPacketComponents] packet with invalid format received: {}".format(e))
         return None
-    
+
     return result
 
 
@@ -80,11 +80,11 @@ if __name__ == '__main__' :
         sys.exit(1)
 
     print('App started...')
-    
+
     serialCon = serial.Serial(port=cmdArgs.port, baudrate=cmdArgs.baud_rate)
-    print('Connected to {}'.format(serialCon))  
-    
-    # read the serial port continuously        
+    print('Connected to {}'.format(serialCon))
+
+    # read the serial port continuously
     while True :
         packet = serialCon.read(PACKET_LEN)
         print('[main] DEBUG: Read {}'.format(hexRepr(packet)))
