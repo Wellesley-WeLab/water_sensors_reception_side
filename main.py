@@ -15,6 +15,27 @@ from models import *
 
 PACKET_LEN = 29
 
+# to print colored messages
+if sys.platform.startswith('linux') :
+    termcolors = {
+        'red'    : "\033[1;31m",
+        'blue'   : "\033[1;34m",
+        'cyan'    : "\033[1;36m",
+        'green'   : "\033[0;32m",
+        'bold'    : "\033[;1m",
+        'reset'   : "\033[0;0m",
+    }
+else :
+    termcolors = {
+        'red'     : "",
+        'blue'    : "",
+        'cyan'    : "",
+        'green'   : "",
+        'bold'    : "",
+        'reset'   : "",
+    }
+
+
 # create command line arguments parser
 parser = argparse.ArgumentParser(
     description='To read data from the receiving device, using serial communication.')
@@ -23,6 +44,14 @@ parser.add_argument(
     '--port', help='The serial port that the device is connected to (ex: /dev/ttyUSB0)')
 # option to indicate the baud rate
 parser.add_argument('--baud_rate', help='The baud rate of the serial connection (ex: 9600)')
+
+
+def printColored (msg, color, bold=False) :
+    toPrint = termcolors[color] + msg + termcolors['reset']
+    if bold :
+        toPrint = termcolors['bold'] + toPrint + termcolors['reset']
+
+    print(toPrint)
 
 
 def hexRepr (string) :
@@ -65,7 +94,7 @@ def getPacketComponents (packet) :
             'pH': bytesToNumber(packet[25:29]),
         }
     except Exception as e:
-        print("[main#getPacketComponents] packet with invalid format received: {}".format(e))
+        printColored("[main#getPacketComponents] packet with invalid format received: {}".format(e), 'red')
         return None
 
     return result
@@ -79,20 +108,23 @@ if __name__ == '__main__' :
         parser.print_usage()
         sys.exit(1)
 
-    print('App started...')
+    printColored('App started...', 'blue', bold=True)
 
     serialCon = serial.Serial(port=cmdArgs.port, baudrate=cmdArgs.baud_rate)
-    print('Connected to {}'.format(serialCon))
+    printColored('Connected to {}'.format(serialCon), 'blue', bold=True)
 
     # read the serial port continuously
     while True :
         packet = serialCon.read(PACKET_LEN)
-        print('[main] DEBUG: Read {}'.format(hexRepr(packet)))
+        printColored('[main] Packet read {}'.format(hexRepr(packet)), 'green')
         # split the packet into its parts
         resultData = getPacketComponents(packet)
         if resultData is None :
-            print('[main] unable to save this measuremet. Corrupted data')
+            printColored('[main] unable to save this measuremet. Corrupted data', 'red')
         else :
-            measurement = Measurement(**resultData)
-            print('{}'.format(measurement))
-            measurement.save()
+            try :
+                measurement = Measurement(**resultData)
+                print('{}'.format(measurement))
+                measurement.save()
+            except Exception as e :
+                printColored('[main] failed to save data: {}'.format(e), 'red')
